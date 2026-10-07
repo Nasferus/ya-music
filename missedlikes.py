@@ -42,7 +42,7 @@ class MissedLikes(wx.Frame):
 		self.missedlikespl = next(
 			x.data.data for x in self.PersonalPlaylistBlocks.entities if x.data.data.generated_playlist_type == 'missedLikes'
 		)
-		self.playlist = settings.client.users_playlists(user_id=self.missedlikespl.uid, kind=self.missedlikespl.kind)
+		self.playlist = settings.client.users_playlists(self.missedlikespl.kind, self.missedlikespl.uid)
 		self.tracks_results=self.playlist.tracks
 		self.tracks_ides_list=[]
 

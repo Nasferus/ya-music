@@ -42,7 +42,7 @@ class DailyPlaylist(wx.Frame):
 		self.dailypl = next(
 			x.data.data for x in self.PersonalPlaylistBlocks.entities if x.data.data.generated_playlist_type == 'playlistOfTheDay'
 		)
-		self.playlist = settings.client.users_playlists(user_id=self.dailypl.uid, kind=self.dailypl.kind)
+		self.playlist = settings.client.users_playlists(self.dailypl.kind, self.dailypl.uid)
 		self.tracks_results=self.playlist.tracks
 		self.tracks_ides_list=[]
 

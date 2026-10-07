@@ -42,7 +42,7 @@ class Dejavu(wx.Frame):
 		self.dejavupl = next(
 			x.data.data for x in self.PersonalPlaylistBlocks.entities if x.data.data.generated_playlist_type == 'neverHeard'
 		)
-		self.playlist = settings.client.users_playlists(user_id=self.dejavupl.uid, kind=self.dejavupl.kind)
+		self.playlist = settings.client.users_playlists(self.dejavupl.kind, self.dejavupl.uid)
 		self.tracks_results=self.playlist.tracks
 		self.tracks_ides_list=[]
 

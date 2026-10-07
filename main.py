@@ -18,6 +18,32 @@ import alice
 import liked_collections
 import offline_player
 
+
+# yandex-music 2.2.0: User.login is a required dataclass field, but the API does
+# not return `login` inside playlist.made_for.user_info, while MadeFor.de_json
+# calls User.de_json on it unconditionally -> TypeError on every personal
+# playlist (Daily, Premiere, Dejavu, Missed likes, Alice). Patch the model.
+def _patch_yandex_music_user_login():
+	try:
+		from yandex_music.playlist.user import User as _YmUser
+	except Exception:
+		return
+	if getattr(_YmUser, '_wam_login_patched', False):
+		return
+	_orig_de_json = _YmUser.de_json.__func__
+
+	def _de_json(cls, data, client=None):
+		if isinstance(data, dict) and not data.get('login'):
+			data = dict(data)
+			data['login'] = ''
+		return _orig_de_json(cls, data, client)
+
+	_YmUser.de_json = classmethod(_de_json)
+	_YmUser._wam_login_patched = True
+
+
+_patch_yandex_music_user_login()
+
 settings.folder_check()
 settings.cash_check()
 settings.music_check()

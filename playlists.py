@@ -16,7 +16,7 @@ class Playlist(wx.Frame):
 		wx.Frame.__init__(self, parent, title = title+' - Playlist', size = (300,250))
 		panel = wx.Panel(self, wx.ID_ANY)
 		self.tracks_list = []
-		self.playlist = settings.client.users_playlists(user_id=user_id, kind=kind)
+		self.playlist = settings.client.users_playlists(kind, user_id)
 		self.mpv = Player()
 		self.stream = True
 		self.selected_track=0

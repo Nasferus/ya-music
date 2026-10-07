@@ -43,7 +43,7 @@ class Premiere(wx.Frame):
 		self.premierepl = next(
 			x.data.data for x in self.PersonalPlaylistBlocks.entities if x.data.data.generated_playlist_type == 'recentTracks'
 		)
-		self.playlist = settings.client.users_playlists(user_id=self.premierepl.uid, kind=self.premierepl.kind)
+		self.playlist = settings.client.users_playlists(self.premierepl.kind, self.premierepl.uid)
 		self.tracks_results=self.playlist.tracks
 		self.tracks_ides_list=[]
 

@@ -42,7 +42,7 @@ class Alice(wx.Frame):
 		self.alicepl = next(
 			x.data.data for x in self.PersonalPlaylistBlocks.entities if x.data.data.generated_playlist_type == 'origin'
 		)
-		self.playlist = settings.client.users_playlists(user_id=self.alicepl.uid, kind=self.alicepl.kind)
+		self.playlist = settings.client.users_playlists(self.alicepl.kind, self.alicepl.uid)
 		self.tracks_results=self.playlist.tracks
 		self.tracks_ides_list=[]
 

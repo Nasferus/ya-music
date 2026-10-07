@@ -571,10 +571,10 @@ class Playlists(wx.Frame):
 					break
 			if like==False:
 				nvda.say('playlist liked')
-				settings.client.users_likes_playlists_add(playlist_ids=self.playlists_results[self.selected_playlist].playlist.title)
+				settings.client.users_likes_playlists_add(playlist_ids=f'{self.playlists_results[self.selected_playlist].playlist.uid}:{self.playlists_results[self.selected_playlist].playlist.kind}')
 			elif like==True:
 				nvda.say('playlistnot liked')
-				settings.client.users_likes_playlists_remove(self.playlists_results.playlist[self.selected_playlists].uid)
+				settings.client.users_likes_playlists_remove(playlist_ids=f'{self.playlists_results[self.selected_playlist].playlist.uid}:{self.playlists_results[self.selected_playlist].playlist.kind}')
 		elif e.ControlDown() == True and e.GetKeyCode() == wx.WXK_CONTROL_C:
 			url_manager.copy(type='playlist', id=self.playlists_results[self.selected_playlist].playlist.kind, id2=self.playlists_results[self.selected_playlist].playlist.owner.uid)
 		elif e.GetKeyCode() == wx.WXK_F1:

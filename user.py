@@ -162,9 +162,9 @@ class User(wx.Frame):
 	def onKeyPressPlaylists(self, e):
 		if e.ControlDown() == True and e.GetKeyCode() == wx.WXK_CONTROL_L:
 			like=False
-			pl_id=f'{self.playlists_results[self.selected_playlist].kind}:{self.playlists_results[self.selected_playlist].uid}'
+			pl_id=f'{self.playlists_results[self.selected_playlist].uid}:{self.playlists_results[self.selected_playlist].kind}'
 			for pl in settings.client.users_likes_playlists():
-				if str(f'{pl.playlist.kind}:{pl.playlist.uid}') == str(f'{self.playlists_results[self.selected_playlist].kind}:{self.playlists_results[self.selected_playlist].uid}'):
+				if str(f'{pl.playlist.uid}:{pl.playlist.kind}') == str(f'{self.playlists_results[self.selected_playlist].uid}:{self.playlists_results[self.selected_playlist].kind}'):
 					like=True
 					break
 			if like==False:
@@ -191,9 +191,9 @@ class User(wx.Frame):
 			likedplaylists.Show(True)
 		elif e.GetKeyCode() == wx.WXK_F1:
 			like=False
-			pl_id=f'{self.playlists_results[self.selected_playlist].kind}:{self.playlists_results[self.selected_playlist].uid}'
+			pl_id=f'{self.playlists_results[self.selected_playlist].uid}:{self.playlists_results[self.selected_playlist].kind}'
 			for pl in settings.client.users_likes_playlists():
-				if str(f'{pl.playlist.kind}:{pl.playlist.uid}') == str(f'{self.playlists_results[self.selected_playlist].kind}:{self.playlists_results[self.selected_playlist].uid}'):
+				if str(f'{pl.playlist.uid}:{pl.playlist.kind}') == str(f'{self.playlists_results[self.selected_playlist].uid}:{self.playlists_results[self.selected_playlist].kind}'):
 					nvda.say('playlist is liked')
 					like=True
 					break
@@ -789,9 +789,9 @@ class Playlists(wx.Frame):
 	def onKeyPressPlaylists(self, e):
 		if e.ControlDown() == True and e.GetKeyCode() == wx.WXK_CONTROL_L:
 			like=False
-			pl_id=f'{self.playlists_results[self.selected_playlist].playlist.kind}:{self.playlists_results[self.selected_playlist].playlist.uid}'
+			pl_id=f'{self.playlists_results[self.selected_playlist].playlist.uid}:{self.playlists_results[self.selected_playlist].playlist.kind}'
 			for pl in settings.client.users_likes_playlists():
-				if str(f'{pl.playlist.kind}:{pl.playlist.uid}') == str(f'{self.playlists_results[self.selected_playlist].playlist.kind}:{self.playlists_results[self.selected_playlist].playlist.uid}'):
+				if str(f'{pl.playlist.uid}:{pl.playlist.kind}') == str(f'{self.playlists_results[self.selected_playlist].playlist.uid}:{self.playlists_results[self.selected_playlist].playlist.kind}'):
 					like=True
 					break
 			if like==False:
@@ -804,9 +804,9 @@ class Playlists(wx.Frame):
 			url_manager.copy(type='playlist', id=self.playlists_results[self.selected_playlist].playlist.kind, id2=self.playlists_results[self.selected_playlist].playlist.owner.uid)
 		elif e.GetKeyCode() == wx.WXK_F1:
 			like=False
-			pl_id=f'{self.playlists_results[self.selected_playlist].playlist.kind}:{self.playlists_results[self.selected_playlist].playlist.uid}'
+			pl_id=f'{self.playlists_results[self.selected_playlist].playlist.uid}:{self.playlists_results[self.selected_playlist].playlist.kind}'
 			for pl in settings.client.users_likes_playlists():
-				if str(f'{pl.playlist.kind}:{pl.playlist.uid}') == str(f'{self.playlists_results[self.selected_playlist].playlist.kind}:{self.playlists_results[self.selected_playlist].playlist.uid}'):
+				if str(f'{pl.playlist.uid}:{pl.playlist.kind}') == str(f'{self.playlists_results[self.selected_playlist].playlist.uid}:{self.playlists_results[self.selected_playlist].playlist.kind}'):
 					nvda.say('playlist is liked')
 					like=True
 					break
