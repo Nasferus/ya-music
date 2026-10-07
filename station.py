@@ -40,18 +40,8 @@ class Station(wx.Frame):
 		self.radio = Radio(settings.client)
 		self.track = self.radio.start_radio(id, id_for_from)
 		print("[Radio] First track is:", self.track)
-		track_name= []
-		for artist in self.track.artists:
-			track_name.append(artist.name)
-			track_name.append(',')
-		if len(track_name)>0:
-			track_name.pop()
-		else:
-			track_name.append('unnown')
-		track_name.append('-')
-		track_name.append(self.track.title)
-		track_name = ' '.join(track_name)
-		self.trecks.InsertItem(0, track_name)
+		# the first track has no predecessor, so history stays empty here
+		self.trecks.InsertItem(0, self.track_name())
 
 		self.Bind(wx.EVT_CLOSE, self.onClose)
 
@@ -62,6 +52,36 @@ class Station(wx.Frame):
 
 	def on_devices_activated(self, e):
 		self.mpv.music.audio_device = self.devices[self.list_devices.GetFocusedItem()].id
+
+	def track_name(self):
+		track_name = []
+		for artist in self.track.artists:
+			track_name.append(artist.name)
+			track_name.append(',')
+		if len(track_name)>0:
+			track_name.pop()
+		else:
+			track_name.append('unnown')
+		track_name.append('-')
+		track_name.append(self.track.title)
+		return ' '.join(track_name)
+
+	def set_track(self, track):
+		"""Show the track in the list and start playing it.
+
+		Used by every path that changes the current radio track: Shift+Right,
+		Shift+Left, end of the track and dislike.
+		"""
+		self.track = track
+		print(self.track.title)
+		track_name = self.track_name()
+		self.trecks.DeleteAllItems()
+		self.trecks.InsertItem(0, track_name)
+		if self.stream == False:
+			self.track.download(self.album_cash)
+			self.mpv.play(self.album_cash)
+		else:
+			self.mpv.play(self.track.get_download_info(get_direct_links=True)[0].direct_link)
 
 	def on_activate_track(self, e):
 		print(self.track.title)
@@ -154,26 +174,12 @@ class Station(wx.Frame):
 			info= ' '.join(info)
 			wx.MessageBox(info, 'info', wx.OK| wx.ICON_INFORMATION)
 		elif e.ShiftDown() == True and e.GetKeyCode() == wx.WXK_RIGHT:
-			self.track = self.radio.play_next()
-			print(self.track.title)
-			track_name= []
-			for artist in self.track.artists:
-				track_name.append(artist.name)
-				track_name.append(',')
-			if len(track_name)>0:
-				track_name.pop()
+			self.set_track(self.radio.play_next())
+		elif e.ShiftDown() == True and e.GetKeyCode() == wx.WXK_LEFT:
+			if self.radio.can_play_previous():
+				self.set_track(self.radio.play_previous())
 			else:
-				track_name.append('unnown')
-			track_name.append('-')
-			track_name.append(self.track.title)
-			track_name = ' '.join(track_name)
-			self.trecks.DeleteAllItems()
-			self.trecks.InsertItem(0, track_name)
-			if self.stream == False:
-				self.track.download(self.album_cash)
-				self.mpv.play(self.album_cash)
-			else:
-				self.mpv.play(self.track.get_download_info(get_direct_links=True)[0].direct_link)
+				nvda.say('this is the first track')
 		elif e.GetKeyCode() == wx.WXK_F1:
 			nvda.say(self.track.title)
 		elif e.GetKeyCode() == wx.WXK_F2:
@@ -205,53 +211,15 @@ class Station(wx.Frame):
 	def next(self, event):
 		if self.mpv.music.idle_active:
 			if self.mpv.mode=='track_list':
-				self.track = self.radio.play_next()
-				print(self.track.title)
-				track_name= []
-				for artist in self.track.artists:
-					track_name.append(artist.name)
-					track_name.append(',')
-				if len(track_name)>0:
-					track_name.pop()
-				else:
-					track_name.append('unnown')
-				track_name.append('-')
-				track_name.append(self.track.title)
-				track_name = ' '.join(track_name)
-				self.trecks.DeleteAllItems()
-				self.trecks.InsertItem(0, track_name)
-				if self.stream == False:
-					self.track.download(self.album_cash)
-					self.mpv.play(self.album_cash)
-				else:
-					self.mpv.play(self.track.get_download_info(get_direct_links=True)[0].direct_link)
+				self.set_track(self.radio.play_next())
 			elif self.mpv.mode=='repeat_track':
 				print(self.track.title)
-				if stream == False:
+				if self.stream == False:
 					self.mpv.play(self.album_cash)
 				else:
 					self.mpv.play(self.track.get_download_info(get_direct_links=True)[0].direct_link)
 
 	def next_track(self):
-		self.track = self.radio.play_next()
-		print(self.track.title)
-		track_name= []
-		for artist in self.track.artists:
-			track_name.append(artist.name)
-			track_name.append(',')
-		if len(track_name)>0:
-			track_name.pop()
-		else:
-			track_name.append('unnown')
-		track_name.append('-')
-		track_name.append(self.track.title)
-		track_name = ' '.join(track_name)
-		self.trecks.DeleteAllItems()
-		self.trecks.InsertItem(0, track_name)
-		if self.stream == False:
-			self.track.download(self.album_cash)
-			self.mpv.play(self.album_cash)
-		else:
-			self.mpv.play(self.track.get_download_info(get_direct_links=True)[0].direct_link)
+		self.set_track(self.radio.play_next())
 
 

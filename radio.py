@@ -14,6 +14,9 @@ class Radio:
         self.current_track = None
         self.station_tracks = None
 
+        # already played tracks, so the user can step back through them
+        self.history = []
+
     def start_radio(self, station_id, station_from) -> Track:
         self.station_id = station_id
         self.station_from = station_from
@@ -30,6 +33,9 @@ class Radio:
         self.__send_play_end_track(self.current_track, self.play_id)
         self.__send_play_end_radio(self.current_track, self.station_tracks.batch_id)
 
+        # remember what was playing, so play_previous can come back to it
+        self.history.append((self.current_track, self.play_id, self.station_tracks.batch_id))
+
         # get next index
         self.index += 1
         if self.index >= len(self.station_tracks.sequence):
@@ -39,6 +45,28 @@ class Radio:
         # setup next track
         self.current_track = self.__update_current_track()
         return self.current_track
+
+    def can_play_previous(self) -> bool:
+        return len(self.history) > 0
+
+    def play_previous(self) -> Track:
+        # the track being left is finalized, but as a skip: the user did not
+        # listen it to the end, and the station should not count it as played
+        self.__send_play_skip(self.current_track, self.station_tracks.batch_id)
+
+        # note: the batch_id of the track being left is deliberately not
+        # reused for the step back. Once the server has seen the skip it
+        # rebuilds the queue around it, so the previous track belongs to the
+        # batch the station is holding now: the history entry keeps the old
+        # id only so the way forward stays consistent.
+
+        track, play_id, batch_id = self.history.pop()
+        self.current_track = track
+        self.play_id = play_id
+
+        self.__send_play_start_track(track, play_id)
+        self.__send_play_start_radio(track, batch_id)
+        return track
 
     def __update_radio_batch(self, queue=None):
         self.index = 0
@@ -73,9 +101,8 @@ class Radio:
         self.client.rotor_station_feedback_track_started(station=self.station_id, track_id=track.id, batch_id=batch_id)
 
     def __send_play_end_track(self, track, play_id):
-        # played_seconds = 5.0
-        played_seconds = track.duration_ms / 1000
-        total_seconds = track.duration_ms / 1000
+        played_seconds = self.__played_seconds(track)
+        total_seconds = self.__played_seconds(track)
         self.client.play_audio(
             from_="desktop_win-home-playlist_of_the_day-playlist-default",
             track_id=track.id,
@@ -92,6 +119,34 @@ class Radio:
             station=self.station_id, track_id=track.id, total_played_seconds=played_seconds, batch_id=batch_id
         )
         pass
+
+    def __send_play_skip(self, track, batch_id):
+        """Report the track as skipped, not as listened to the end.
+
+        The playing itself is not reported here: the skip replaces the end
+        of the track, and a second play_audio for the same play_id is what
+        used to make the server reject the feedback.
+        """
+        # total_played_seconds must stay a live number: the server rejects
+        # the whole feedback with BadRequestError when the field that backs
+        # it (TrackFinishedPlaying) comes through with no value at all,
+        # which is exactly what a zero turns into on the wire
+        played_seconds = self.__played_seconds(track)
+        self.client.rotor_station_feedback_skip(
+            station=self.station_id, track_id=track.id, total_played_seconds=played_seconds, batch_id=batch_id
+        )
+
+    @staticmethod
+    def __played_seconds(track):
+        """Duration of the track in seconds, never falsy for the API.
+
+        The rotor feedback is rejected when total_played_seconds is missing
+        from the payload (the server reports the backing field
+        TrackFinishedPlaying as unparsed), so zero must not be sent.
+        """
+        duration = getattr(track, 'duration_ms', None) or 0
+        seconds = round(float(duration) / 1000)
+        return max(1, seconds)
 
     @staticmethod
     def __generate_play_id():
