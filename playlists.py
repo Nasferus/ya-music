@@ -12,6 +12,20 @@ from player import Player
 from sound_device import SoundDevice
 
 class Playlist(wx.Frame):
+	def track_name(self, track):
+		'''Name of the track as it is shown in the list.'''
+		track_name = []
+		for artist in track.artists:
+			track_name.append(artist.name)
+			track_name.append(',')
+		if len(track_name)>0:
+			track_name.pop()
+		else:
+			track_name.append('unnown')
+		track_name.append('-')
+		track_name.append(track.title)
+		return ' '.join(track_name)
+
 	def __init__(self, parent, title, user_id, kind):
 		wx.Frame.__init__(self, parent, title = title+' - Playlist', size = (300,250))
 		panel = wx.Panel(self, wx.ID_ANY)
@@ -53,17 +67,7 @@ class Playlist(wx.Frame):
 		for track in self.tracks_results:
 			if track.available == False:
 				continue
-			track_name= []
-			for artist in track.artists:
-				track_name.append(artist.name)
-				track_name.append(',')
-			if len(track_name)>0:
-				track_name.pop()
-			else:
-				track_name.append('unnown')
-			track_name.append('-')
-			track_name.append(track.title)
-			track_name = ' '.join(track_name)
+			track_name = self.track_name(track)
 			self.trecks.InsertItem(self.index, track_name)
 			self.index+=1
 
@@ -111,17 +115,7 @@ class Playlist(wx.Frame):
 				for track in self.tracks_results:
 					if track.available == False:
 						continue
-					track_name= []
-					for artist in track.artists:
-						track_name.append(artist.name)
-						track_name.append(',')
-					if len(track_name)>0:
-						track_name.pop()
-					else:
-						track_name.append('unnown')
-					track_name.append('-')
-					track_name.append(track.title)
-					track_name = ' '.join(track_name)
+					track_name = self.track_name(track)
 					self.trecks.InsertItem(index, track_name)
 					index+=1
 			elif self.mpv.random_mode == 'list':
@@ -130,17 +124,7 @@ class Playlist(wx.Frame):
 				for track in self.tracks_results:
 					if track.available == False:
 						continue
-					track_name= []
-					for artist in track.artists:
-						track_name.append(artist.name)
-						track_name.append(',')
-					if len(track_name)>0:
-						track_name.pop()
-					else:
-						track_name.append('unnown')
-					track_name.append('-')
-					track_name.append(track.title)
-					track_name = ' '.join(track_name)
+					track_name = self.track_name(track)
 					self.trecks.InsertItem(index, track_name)
 					index+=1
 		elif e.AltDown() == True and e.GetKeyCode() == wx.WXK_F5:
@@ -236,25 +220,9 @@ class Playlist(wx.Frame):
 			info= ' '.join(info)
 			wx.MessageBox(info, 'info', wx.OK| wx.ICON_INFORMATION)
 		elif e.ShiftDown() == True and e.GetKeyCode() == wx.WXK_LEFT:
-				self.trecks.Focus(self.playing_track-1)
-				self.selected_track=self.trecks.GetFocusedItem()
-				print(self.tracks_results[self.selected_track].title)
-				self.playing_track=self.selected_track
-				if self.stream == False:
-					self.tracks_results[self.selected_track].download(self.album_cash)
-					self.mpv.play(self.album_cash)
-				else:
-					self.mpv.play(self.tracks_results[self.selected_track].get_download_info(get_direct_links=True)[0].direct_link)
+				self.previous_track()
 		elif e.ShiftDown() == True and e.GetKeyCode() == wx.WXK_RIGHT:
-				self.trecks.Focus(self.playing_track+1)
-				self.selected_track=self.trecks.GetFocusedItem()
-				print(self.tracks_results[self.selected_track].title)
-				self.playing_track=self.selected_track
-				if self.stream == False:
-					self.tracks_results[self.selected_track].download(self.album_cash)
-					self.mpv.play(self.album_cash)
-				else:
-					self.mpv.play(self.tracks_results[self.selected_track].get_download_info(get_direct_links=True)[0].direct_link)
+				self.next_track()
 		elif e.GetKeyCode() == wx.WXK_F1:
 			nvda.say(self.tracks_results[self.playing_track].title)
 		elif e.GetKeyCode() == wx.WXK_F2:
@@ -283,15 +251,7 @@ class Playlist(wx.Frame):
 	def next(self, event):
 		if self.mpv.music.idle_active:
 			if self.mpv.mode=='track_list':
-				self.trecks.Focus(self.playing_track+1)
-				self.selected_track=self.trecks.GetFocusedItem()
-				print(self.tracks_results[self.selected_track].title)
-				self.playing_track=self.selected_track
-				if self.stream == False:
-					self.tracks_results[self.selected_track].download(self.album_cash)
-					self.mpv.play(self.album_cash)
-				else:
-					self.mpv.play(self.tracks_results[self.selected_track].get_download_info(get_direct_links=True)[0].direct_link)
+				self.next_track()
 			elif self.mpv.mode=='repeat_track':
 				print(self.tracks_results[self.playing_track].title)
 				if self.stream == False:
@@ -310,19 +270,21 @@ class Playlist(wx.Frame):
 		else:
 			self.mpv.play(self.tracks_results[self.selected_track].get_download_info(get_direct_links=True)[0].direct_link)
 
+
+	def previous_track(self):
+		self.trecks.Focus(self.playing_track-1)
+		self.selected_track=self.trecks.GetFocusedItem()
+		print(self.tracks_results[self.selected_track].title)
+		self.playing_track=self.selected_track
+		if self.stream == False:
+			self.tracks_results[self.selected_track].download(self.album_cash)
+			self.mpv.play(self.album_cash)
+		else:
+			self.mpv.play(self.tracks_results[self.selected_track].get_download_info(get_direct_links=True)[0].direct_link)
+
 	def download_all(self):
 		for track in self.tracks_results:
-			track_name= []
-			for artist in track.artists:
-				track_name.append(artist.name)
-				track_name.append(',')
-			if len(track_name)>0:
-				track_name.pop()
-			else:
-				track_name.append('unnown')
-			track_name.append('-')
-			track_name.append(track.title)
-			track_name = ' '.join(track_name)
+			track_name = self.track_name(track)
 			track_name+='.mp3'
 			download_name = track_name
 			if "?" in download_name:
