@@ -1,0 +1,7 @@
+# Normalize line endings in the repository.
+#
+# The tree had grown mixed endings: most files were checked in with CRLF,
+# while radio.py and mpv.py were LF-only. A patch produced from such a tree
+# applies or fails depending on the local core.autocrlf, so the repository
+# stores LF and lets each checkout convert on its own.
+* text=auto eol=lf
