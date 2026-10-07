@@ -62,9 +62,15 @@ as a script. To get it going from a clean machine:
    pip install yandex_music wxPython pyperclip requests
    ```
 
-   The project does not currently ship a `requirements.txt`; these four are
-   the real dependencies. `albums.py`, `artists.py`, `player.py`, `radio.py`,
-   `station.py` and friends are part of the repository itself, not packages.
+   Or, from the same file that lists them for `pip`:
+
+   ```
+   pip install -r requirements.txt
+   ```
+
+   Those four are the real dependencies. `albums.py`, `artists.py`,
+   `player.py`, `radio.py`, `station.py` and friends are part of the
+   repository itself, not packages.
 
 4. **libmpv.** Download a Windows build of mpv (the
    [mpv-player-windows](https://sourceforge.net/projects/mpv-player-windows/files/libmpv/)

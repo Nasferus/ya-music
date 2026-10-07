@@ -1,0 +1,13 @@
+# Runtime dependencies of YaMusic.
+#
+# No version pin on yandex-music on purpose: the only version-specific
+# workaround in this repo (the User.login patch in main.py) is not needed from
+# 3.2.0 on -- upstream made User.login optional in
+# https://github.com/MarshalX/yandex-music-api/pull/733. Anything older than
+# 3.2.0 still needs the patch, so pinning below that would be a downgrade, and
+# pinning exactly would block the next fix coming from upstream.
+yandex-music
+
+wxPython
+pyperclip
+requests
