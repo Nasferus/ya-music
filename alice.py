@@ -54,8 +54,17 @@ class Alice(wx.Frame):
 
 		self.PersonalPlaylistBlocks = settings.client.landing(blocks=['personalplaylists']).blocks[0]
 		self.alicepl = next(
-			x.data.data for x in self.PersonalPlaylistBlocks.entities if x.data.data.generated_playlist_type == 'origin'
+			(x.data.data for x in self.PersonalPlaylistBlocks.entities
+			 if x.data.data.generated_playlist_type == 'origin'),
+			None
 		)
+		if self.alicepl is None:
+			wx.MessageBox(
+				"Не найден плейлист 'Моя волна' (origin) в блоке personalplaylists.",
+				'error', wx.OK | wx.ICON_ERROR
+			)
+			self.Destroy()
+			return
 		self.playlist = settings.client.users_playlists(self.alicepl.kind, self.alicepl.uid)
 		self.tracks_results=self.playlist.tracks
 		self.tracks_ides_list=[]
