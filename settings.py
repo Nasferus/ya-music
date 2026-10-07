@@ -1,6 +1,10 @@
 import os
+import sys
 import json
 from yandex_music import Client
+
+if sys.platform != 'win32':
+	raise SystemExit('YaMusic requires Windows: %LOCALAPPDATA% and the NVDA controller client are used directly.')
 
 prg_folder = os.path.join(os.getenv('LOCALAPPDATA'), 'Ya_music')
 cash_folder=os.path.join(prg_folder, 'cash')
